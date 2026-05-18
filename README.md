@@ -13,7 +13,7 @@ Proyecto local para capturar datos con MediaPipe, entrenar un modelo LSTM y dete
 Desde la carpeta del proyecto:
 
 ```powershell
-python -m venv venv
+python -3.10 -m venv venv
 ```
 
 Activar el entorno:
