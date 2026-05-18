@@ -19,7 +19,7 @@ python -m venv venv
 Activar el entorno:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate
 ```
 
 Si PowerShell bloquea la activacion, ejecuta:
@@ -31,7 +31,7 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 Luego vuelve a activar:
 
 ```powershell
-.\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate
 ```
 
 ## Instalar dependencias
@@ -92,7 +92,7 @@ app/config.py
 Actualmente:
 
 ```python
-NO_SEQUENCES = 10
+NO_SEQUENCES = 30
 SEQUENCE_LENGTH = 30
 ```
 
