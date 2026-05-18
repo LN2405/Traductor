@@ -1,0 +1,15 @@
+# Machine learning
+tensorflow==2.12.0
+numpy
+scikit-learn
+
+# Computer vision
+opencv-python
+mediapipe==0.10.9
+
+# Audio
+gTTS
+pygame
+
+# API sync
+requests
