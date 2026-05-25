@@ -1,7 +1,9 @@
 import os
 
-DATA_PATH = os.path.join("data", "MP_Data")
+LOCAL_DATA_PATH = os.path.join("data", "MP_Data")
+DATA_PATH = os.path.join("data", "MP_Data_imported")
 
+os.makedirs(LOCAL_DATA_PATH, exist_ok=True)
 os.makedirs(DATA_PATH, exist_ok=True)
 
 NO_SEQUENCES = 30

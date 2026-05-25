@@ -45,17 +45,19 @@ except Exception:
 
 try:
     model = load_model(MODEL_PATH)
+    print(f"✅ Modelo cargado: {MODEL_PATH}")
 
     with open(LABELS_PATH, "r") as f:
         label_map = json.load(f)
+    print(f"✅ Labels cargados: {LABELS_PATH}")
 
     inv_map = {v: k for k, v in label_map.items()}
     actions = np.array([inv_map[i] for i in range(len(inv_map))])
-    print("Modelo y labels cargados")
+    print(f"✅ Clases disponibles: {len(actions)}")
 except Exception as e:
     model = None
     actions = np.array([])
-    print(f"Error cargando modelo o labels: {e}")
+    print(f"❌ Error cargando modelo o labels: {e}")
 
 
 colors = [
@@ -209,9 +211,6 @@ with crear_holistic() as holistic:
         if not ret:
             break
 
-        if FLIP_CAMERA:
-            frame = cv2.flip(frame, 1)
-
         image, results = mediapipe_detection(frame, holistic)
 
         if DRAW_LANDMARKS:
@@ -221,9 +220,10 @@ with crear_holistic() as holistic:
             sequence = []
             buffer = []
             last_spoken = ""
-            cv2.rectangle(image, (0, 0), (640, 50), (245, 117, 16), -1)
+            display_image = cv2.flip(image, 1) if FLIP_CAMERA else image
+            cv2.rectangle(display_image, (0, 0), (640, 50), (245, 117, 16), -1)
             cv2.putText(
-                image,
+                display_image,
                 " ".join(sentence),
                 (3, 38),
                 cv2.FONT_HERSHEY_SIMPLEX,
@@ -232,7 +232,7 @@ with crear_holistic() as holistic:
                 2,
                 cv2.LINE_AA,
             )
-            cv2.imshow("LSP Detector", image)
+            cv2.imshow("LSP Detector", display_image)
 
             if cv2.waitKey(10) & 0xFF == ord("q"):
                 break
@@ -242,6 +242,7 @@ with crear_holistic() as holistic:
         keypoints = extract_keypoints(results)
         sequence.append(keypoints)
         sequence = sequence[-SEQUENCE_LENGTH:]
+        show_probs = False
 
         if model is not None and len(actions) > 0 and len(sequence) == SEQUENCE_LENGTH:
             expected_features = model.input_shape[-1]
@@ -275,11 +276,16 @@ with crear_holistic() as holistic:
                 if len(sentence) > 5:
                     sentence = sentence[-5:]
 
-                image = prob_viz(res, actions, image, colors)
+                show_probs = True
 
-        cv2.rectangle(image, (0, 0), (640, 50), (245, 117, 16), -1)
+        display_image = cv2.flip(image, 1) if FLIP_CAMERA else image
+
+        if show_probs:
+            display_image = prob_viz(res, actions, display_image, colors)
+
+        cv2.rectangle(display_image, (0, 0), (640, 50), (245, 117, 16), -1)
         cv2.putText(
-            image,
+            display_image,
             " ".join(sentence + (["".join(letter_buffer)] if letter_buffer else [])),
             (3, 38),
             cv2.FONT_HERSHEY_SIMPLEX,
@@ -289,7 +295,7 @@ with crear_holistic() as holistic:
             cv2.LINE_AA,
         )
 
-        cv2.imshow("LSP Detector", image)
+        cv2.imshow("LSP Detector", display_image)
 
         if cv2.waitKey(10) & 0xFF == ord("q"):
             break

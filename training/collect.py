@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 
-from app.config import DATA_PATH, NO_SEQUENCES, SEQUENCE_LENGTH
+from app.config import LOCAL_DATA_PATH as DATA_PATH, NO_SEQUENCES, SEQUENCE_LENGTH
 from app.services.mediapipe_service import (
     mediapipe_detection,
     draw_styled_landmarks,
@@ -36,6 +36,9 @@ def crear_carpetas(action, inicio):
 
 def grabar_dataset(action, inicio):
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     with crear_holistic() as holistic:
 
@@ -47,14 +50,13 @@ def grabar_dataset(action, inicio):
                     print("❌ No se pudo leer la cámara")
                     break
 
-                frame = cv2.flip(frame, 1)
-
                 image, results = mediapipe_detection(frame, holistic)
                 draw_styled_landmarks(image, results)
+                display_image = cv2.flip(image, 1)
 
                 if frame_num == 0:
                     cv2.putText(
-                        image,
+                        display_image,
                         f"PREPARATE! Gesto: {action}",
                         (80, 200),
                         cv2.FONT_HERSHEY_SIMPLEX,
@@ -62,11 +64,11 @@ def grabar_dataset(action, inicio):
                         (0, 0, 255),
                         3
                     )
-                    cv2.imshow("Grabando", image)
+                    cv2.imshow("Grabando", display_image)
                     cv2.waitKey(2000)
 
                 cv2.putText(
-                    image,
+                    display_image,
                     f"Grabando: {action} - Video {sequence}",
                     (50, 50),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -76,7 +78,7 @@ def grabar_dataset(action, inicio):
                 )
 
                 cv2.putText(
-                    image,
+                    display_image,
                     f"Frame: {frame_num + 1}/{SEQUENCE_LENGTH}",
                     (50, 100),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -85,7 +87,7 @@ def grabar_dataset(action, inicio):
                     2
                 )
 
-                cv2.imshow("Grabando", image)
+                cv2.imshow("Grabando", display_image)
 
                 keypoints = extract_keypoints(results)
 
